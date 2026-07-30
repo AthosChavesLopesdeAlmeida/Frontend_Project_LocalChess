@@ -1,5 +1,6 @@
 import { BoardState, Position } from "@/types/chess.types";
 import { getPieceAt, isInBounds } from "./board";
+import { getCastlingMoves } from "./specialMoves";
 
 // Função auxiliar para os movimentos da torre, do bispo e da rainha
 function getSlidingMoves(board: BoardState, pos: Position, directions: [number, number][]): Position[] {
@@ -51,8 +52,8 @@ export function getQueenMoves (board: BoardState, pos: Position): Position[] {
 
 export function getKnightMoves (board: BoardState, pos: Position): Position[] {
   // Estabelece o padrão de movimentos legais do cavalo
-  const offsets = [[-2, -1], [-2, 1], [-1, -2], [-1, 2],
-                   [1, -2],  [1, 2 ], [2, -1 ], [2, 1 ]]
+  const offsets = [[-2, -1],  [-2, 1], [-1, -2], [-1, 2],
+                   [1, -2 ],  [1, 2 ], [2, -1 ], [2, 1 ]]
 
   const moves = []
   const piece = getPieceAt(board, pos) 
@@ -81,7 +82,7 @@ export function getKingMoves (board: BoardState, pos: Position): Position[] {
                    [0,-1 ],          [0,1 ],
                    [1,-1 ], [ 1,0],  [1,1 ]]
   
-  const moves = []
+  const moves= []
   const piece = getPieceAt(board, pos) 
 
   for (const [dRow, dCol] of offsets) {
@@ -96,7 +97,13 @@ export function getKingMoves (board: BoardState, pos: Position): Position[] {
       if (targetPiece === null || targetPiece.color !== piece?.color) {
         moves.push(target)
       }
-    }  
+    }
+  }
+
+  // Roque
+  if (piece) {
+    const castlingMoves = getCastlingMoves(board, piece.color)
+    return [...moves, ...castlingMoves]
   }
 
   return moves
