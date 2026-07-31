@@ -1,4 +1,4 @@
-import { BoardState, Color, Position } from "@/types/chess.types";
+import { BoardState, Color, Piece, Position } from "@/types/chess.types";
 import { isKingInCheck, findKing } from "./check";
 import { getPieceAt } from "./board";
 import { makeMove } from "./gameState";
@@ -74,4 +74,11 @@ export function getCastlingMoves (board: BoardState, color: Color): Position[] {
   }
 
   return castlingMoves
+}
+
+export function isPromotion (pos: Position, piece: Piece): boolean {
+  if (piece.type !== 'pawn') return false
+
+  const lastRow = piece.color === 'white' ? 0 : 7
+  return pos.row === lastRow
 }

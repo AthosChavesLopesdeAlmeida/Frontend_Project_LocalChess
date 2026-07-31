@@ -4,7 +4,12 @@ import { Move, BoardState } from "@/types/chess.types";
 // Clona o tabuleiro com o novo movimento feito
 export function makeMove(board: BoardState, move: Move): BoardState {
   let newBoard = cloneBoard(board)
-  const pieceMovida = { ...move.piece, hasMoved: true }
+  let pieceMovida = { ...move.piece, hasMoved: true }
+
+  // Se for promoção, troca o tipo da peça antes de colocar no destino
+  if (move.promotion) {
+    pieceMovida = { ...pieceMovida, type: move.promotion }
+  }
 
   newBoard = setPieceAt(newBoard, move.from, null)
   newBoard = setPieceAt(newBoard, move.to, pieceMovida)
