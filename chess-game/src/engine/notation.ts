@@ -4,15 +4,15 @@ import { isCheckmate } from "./gameFinishers";
 import { isKingInCheck } from "./check";
 import { FILES } from "@/lib/constants";
 
-export function moveToAlgebraic (move: Move, boardBeforeMove: BoardState, boardAfterMove: BoardState, lastMove: Move): string {
+export function moveToAlgebraic (move: Move, boardBeforeMove: BoardState, boardAfterMove: BoardState): string {
   const opponentColor = move.piece.color === 'white' ? 'black' : 'white'
 
   if (move.isCastle) {
     let castleNotation = move.isCastle === 'kingside' ? 'O-O' : 'O-O-O'
 
-    if (isCheckmate(boardAfterMove, opponentColor, lastMove)) {
+    if (isCheckmate(boardAfterMove, opponentColor, move)) {
       castleNotation += '#'
-    } else if (isKingInCheck(boardAfterMove, opponentColor, lastMove)) {
+    } else if (isKingInCheck(boardAfterMove, opponentColor, move)) {
       castleNotation += '+'
     }
 
@@ -62,9 +62,9 @@ export function moveToAlgebraic (move: Move, boardBeforeMove: BoardState, boardA
     moveNotation += `=${promotionLetters[move.promotion]}`
   }
 
-  if (isCheckmate(boardAfterMove, opponentColor, lastMove)) {
+  if (isCheckmate(boardAfterMove, opponentColor, move)) {
     moveNotation += '#'
-  } else if (isKingInCheck(boardAfterMove, opponentColor, lastMove)) {
+  } else if (isKingInCheck(boardAfterMove, opponentColor, move)) {
     moveNotation += '+'
   }
 
