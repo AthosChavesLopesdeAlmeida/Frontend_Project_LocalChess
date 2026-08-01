@@ -25,7 +25,7 @@ export function useChessGame() {
         setSelectedSquare(clickedSquare)
 
         // Pega a função para a peça selecionada (acima) e usa ela
-        const moves = getLegalMoves(boardState, clickedSquare)
+        const moves = getLegalMoves(boardState, clickedSquare, moveHistory[moveHistory.length - 1] ?? null)
 
         setPossibleMoves(moves)
       }
@@ -45,6 +45,11 @@ export function useChessGame() {
           // Detecta roque: rei andando 2 casas
           if (movingPiece.type === 'king' && Math.abs(clickedSquare.col - selectedSquare.col) === 2) {
             move.isCastle = clickedSquare.col > selectedSquare.col ? 'kingside' : 'queenside'
+          }
+
+          // peão mudou de coluna (captura diagonal) mas a casa de destino está vazia - En Passant
+          if (movingPiece.type === 'pawn' && clickedSquare.col !== selectedSquare.col && clickedPiece === null) {
+            move.isEnPassant = true
           }
 
           // Detecta promoção: peão chega na última casa
@@ -68,7 +73,7 @@ export function useChessGame() {
         // Clica em outra peça própria, muda a seleção
         setSelectedSquare(clickedSquare)
 
-        const moves = getLegalMoves(boardState, clickedSquare)
+        const moves = getLegalMoves(boardState, clickedSquare, moveHistory[moveHistory.length - 1] ?? null)
 
         setPossibleMoves(moves)
       } else {

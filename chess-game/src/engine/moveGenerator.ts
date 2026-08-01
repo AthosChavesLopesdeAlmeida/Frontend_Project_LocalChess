@@ -1,6 +1,6 @@
-import { BoardState, Position } from "@/types/chess.types";
+import { BoardState, Move, Position } from "@/types/chess.types";
 import { getPieceAt, isInBounds } from "./board";
-import { getCastlingMoves } from "./specialMoves";
+import { getCastlingMoves, getEnPassant } from "./specialMoves";
 
 // Função auxiliar para os movimentos da torre, do bispo e da rainha
 function getSlidingMoves(board: BoardState, pos: Position, directions: [number, number][]): Position[] {
@@ -109,7 +109,7 @@ export function getKingMoves (board: BoardState, pos: Position): Position[] {
   return moves
 }
 
-export function getPawnMoves (board: BoardState, pos: Position): Position[] {
+export function getPawnMoves (board: BoardState, pos: Position, lastMove: Move | null): Position[] {
   const piece = getPieceAt(board, pos)
   const direction = piece?.color === 'black' ? -1 : 1
   const moves = []
@@ -139,6 +139,12 @@ export function getPawnMoves (board: BoardState, pos: Position): Position[] {
         moves.push(diagonal)
       }
     }
+  }
+
+  // Regras de En passant
+  const enPassantMoves = getEnPassant(board, pos, lastMove)
+  if (enPassantMoves) {
+    moves.push(...enPassantMoves)
   }
 
   return moves

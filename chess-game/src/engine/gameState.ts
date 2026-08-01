@@ -27,5 +27,11 @@ export function makeMove(board: BoardState, move: Move): BoardState {
     }
   }
 
+  if (move.isEnPassant) {
+    const capturedPawnRow = move.from.row // mesma linha de onde o peão saiu
+    const capturedPawnCol = move.to.col   // mesma coluna do destino
+    newBoard = setPieceAt(newBoard, { row: capturedPawnRow, col: capturedPawnCol }, null)
+  }
+
   return newBoard
 }

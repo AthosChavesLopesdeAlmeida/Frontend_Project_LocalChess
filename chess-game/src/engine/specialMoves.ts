@@ -1,4 +1,4 @@
-import { BoardState, Color, Piece, Position } from "@/types/chess.types";
+import { BoardState, Color, Piece, Position, Move } from "@/types/chess.types";
 import { isKingInCheck, findKing } from "./check";
 import { getPieceAt } from "./board";
 import { makeMove } from "./gameState";
@@ -81,4 +81,29 @@ export function isPromotion (pos: Position, piece: Piece): boolean {
 
   const lastRow = piece.color === 'white' ? 0 : 7
   return pos.row === lastRow
+}
+
+
+// Regra de En passant
+export function getEnPassant (board: BoardState, pos: Position, lastMove: Move | null): Position[] {
+  // retorna [] ou [{row, col}] com a casa de captura en passant, se válida
+  const moves: Position[] = []
+  const piece = getPieceAt(board, pos)
+
+  if (!piece) return moves
+
+  // Verifica várias coisas: 1) Se existe um lance anterior 2)foi um peão andando duas casas 3) Se está do lado do meu peão
+  if (lastMove && lastMove.piece.type === 'pawn') {
+    if (Math.abs(lastMove.from.row - lastMove.to.row) === 2) {
+      if (lastMove.to.row === pos.row && (lastMove.to.col - 1 === pos.col || lastMove.to.col + 1 === pos.col)) {
+        const direcao = piece.color === 'white' ? -1 : 1
+        const targetRow = pos.row + direcao
+        const targetCol = lastMove.to.col
+
+        moves.push({row: targetRow, col: targetCol})
+      }
+    }
+  }
+
+  return moves
 }
