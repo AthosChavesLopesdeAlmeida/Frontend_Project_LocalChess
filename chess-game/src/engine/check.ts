@@ -1,4 +1,4 @@
-import { BoardState, Color, Position } from "@/types/chess.types";
+import { BoardState, Color, Move, Position } from "@/types/chess.types";
 import { moveGenerators } from "./moveDispatcher";
 
 export function findKing (board: BoardState, color: Color): Position {
@@ -15,7 +15,7 @@ export function findKing (board: BoardState, color: Color): Position {
   throw new Error(`King not found for color: ${color}`);
 }
 
-export function isKingInCheck (board: BoardState, color: Color): boolean {
+export function isKingInCheck (board: BoardState, color: Color, lastMove: Move | null): boolean {
   const kingPosition = findKing(board, color)
   const opponentColor = color === 'white' ? 'black' : 'white'
 
@@ -25,7 +25,7 @@ export function isKingInCheck (board: BoardState, color: Color): boolean {
     for (let col = 0; col <= 7; col++) {
       const piece = board[row][col]
       if (piece !== null && piece.color === opponentColor) {
-        const move = moveGenerators[piece.type](board, { row, col })
+        const move = moveGenerators[piece.type](board, { row, col }, lastMove)
         if (move.includes(kingPosition)) {
           return true
         }
