@@ -8,8 +8,11 @@
   aspect-ratio: 1;
 }
 
+.square-check { background-color: #ff6b6b; }
+.square-recent { background-color: #fdfa9e; }
+
 .square-light { background-color: #f0d9b5; }
-.square-dark { background-color: #b58863; }
+.square-dark { background-color: #89684c; }
 
 .coord {
   position: absolute;
@@ -27,6 +30,23 @@
   right: 2px;
 }
 
+.move-mark {
+  text-align: center;
+  background-color:#787878 ;
+  opacity: 0.7;
+  border-radius: 100%;
+  width: 6px;
+  height: 6px;
+}
+
+.capture-mark {
+  text-align: center;
+  background-color:#505050 ;
+  border-radius: 100%;
+  width: 6px;
+  height: 6px;
+}
+
 .board-grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
@@ -36,3 +56,4 @@
   aspect-ratio: 1;
   border: 2px solid #333;
 }
+

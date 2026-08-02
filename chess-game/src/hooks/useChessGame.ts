@@ -1,3 +1,4 @@
+'use client'
 import { getPieceAt } from "@/engine/board";
 import { makeMove } from "@/engine/gameState";
 import { Position, BoardState, Move, PieceType } from "@/types/chess.types";
@@ -5,6 +6,12 @@ import { useState } from "react";
 import { createInitialBoard } from "@/lib/constants";
 import { getLegalMoves } from "@/engine/legalMoves";
 import { isPromotion } from "@/engine/specialMoves";
+import { moveToAlgebraic } from "@/engine/notation";
+
+export interface RecordedMove {
+  move: Move
+  notation: string
+}
 
 export function useChessGame() {
   const [selectedSquare, setSelectedSquare] = useState<Position | null>(null)
@@ -12,11 +19,12 @@ export function useChessGame() {
   const [pendingPromotion, setPendingPromotion] = useState<Move | null>(null)
   const [possibleMoves, setPossibleMoves] = useState<Position[]>([])
   const [boardState, setBoardState] = useState<BoardState>(createInitialBoard())
-  const [moveHistory, setMoveHistory] = useState<Move[]>([])
+  const [moveHistory, setMoveHistory] = useState<RecordedMove[]>([])
 
   // Função auxiliar para que o hook não precise de parâmetros
   function handleSquareClick(clickedSquare: Position) {
     const clickedPiece = getPieceAt(boardState, clickedSquare)
+    const lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1].move : null
 
     // Se nenhuma peça está selecionada
     if (selectedSquare === null) {
@@ -25,7 +33,7 @@ export function useChessGame() {
         setSelectedSquare(clickedSquare)
 
         // Pega a função para a peça selecionada (acima) e usa ela
-        const moves = getLegalMoves(boardState, clickedSquare, moveHistory[moveHistory.length - 1] ?? null)
+        const moves = getLegalMoves(boardState, clickedSquare, lastMove)
 
         setPossibleMoves(moves)
       }
@@ -62,18 +70,19 @@ export function useChessGame() {
           }
 
           const newBoard = makeMove(boardState, move)
+          const notation = moveToAlgebraic(move, boardState, newBoard)
 
           setBoardState(newBoard)
           setSelectedSquare(null)
           setPossibleMoves([])
-          setMoveHistory([...moveHistory, move])
+          setMoveHistory([...moveHistory, { move, notation }])
           setCurrentTurn(currentTurn === 'white' ? 'black' : 'white')
         }
       } else if (clickedPiece !== null && currentTurn === clickedPiece.color) {
         // Clica em outra peça própria, muda a seleção
         setSelectedSquare(clickedSquare)
 
-        const moves = getLegalMoves(boardState, clickedSquare, moveHistory[moveHistory.length - 1] ?? null)
+        const moves = getLegalMoves(boardState, clickedSquare, lastMove)
 
         setPossibleMoves(moves)
       } else {
@@ -89,9 +98,10 @@ export function useChessGame() {
 
     const move: Move = { ...pendingPromotion, promotion: chosenType }
     const newBoard = makeMove(boardState, move)
+    const notation = moveToAlgebraic(move, boardState, newBoard)
 
     setBoardState(newBoard)
-    setMoveHistory([...moveHistory, move])
+    setMoveHistory([...moveHistory, { move, notation }])
     setCurrentTurn(currentTurn === 'white' ? 'black' : 'white')
     setPendingPromotion(null)
   }
