@@ -15,7 +15,7 @@ function areSquaresEmpty (board: BoardState, row: number, fromCol: number, toCol
 }
 
 // As funções abaixo são funções auxiliares para sabermos se determinada casa está sendo atacada por uma peça adversária
-function squareIsAttacked (board: BoardState, color: Color, pos: Position): boolean | null {
+function squareIsAttacked (board: BoardState, color: Color, pos: Position, lastMove: Move | null): boolean | null {
   const kingPosition = findKing(board, color)
   const king = getPieceAt(board, kingPosition)
 
@@ -24,12 +24,12 @@ function squareIsAttacked (board: BoardState, color: Color, pos: Position): bool
   const simulatedMove = {from: kingPosition, to: pos, piece: king}
   const simulatedBoard = makeMove(board, simulatedMove)
 
-  return isKingInCheck(simulatedBoard, color)
+  return isKingInCheck(simulatedBoard, color, lastMove)
 }
 
-function isSquareSafe (board: BoardState, color: Color, row: number, cols: number[]): boolean {
+function isSquareSafe (board: BoardState, color: Color, row: number, cols: number[], lastMove: Move | null): boolean {
   for (const col of cols) {
-    if (squareIsAttacked(board, color, {row, col})) {
+    if (squareIsAttacked(board, color, {row, col}, lastMove)) {
       return false
     }
   }
@@ -37,7 +37,7 @@ function isSquareSafe (board: BoardState, color: Color, row: number, cols: numbe
   return true
 }
 
-export function getCastlingMoves (board: BoardState, color: Color): Position[] {
+export function getCastlingMoves (board: BoardState, color: Color, lastMove: Move | null): Position[] {
   const castlingMoves: Position[] = []
   const kingRow = color === 'black' ? 0 : 7
   const king = board[kingRow][4]
@@ -45,7 +45,7 @@ export function getCastlingMoves (board: BoardState, color: Color): Position[] {
   // Se o rei não existe (improvável, mas pode haver bug), se moveu ou está em cheque, não pode fazer roque
   if (!king) return []
   if (king.hasMoved) return []
-  if (isKingInCheck(board, color)) return []
+  if (isKingInCheck(board, color, lastMove)) return []
 
   // Pega a torre do lado do rei
   const rookKingSide = getPieceAt(board, {row: kingRow, col: 7})
@@ -53,7 +53,7 @@ export function getCastlingMoves (board: BoardState, color: Color): Position[] {
   if (rookKingSide && rookKingSide.type === 'rook' && !rookKingSide.hasMoved) {
     // Se as casas entre a torre e o rei não estão ocupadas nem atacadas (no primeiro caso, incluindo a casa do rei)
     if (areSquaresEmpty(board, kingRow, 5, 6)) {
-      if (isSquareSafe(board, color, kingRow, [4, 5, 6])) {
+      if (isSquareSafe(board, color, kingRow, [4, 5, 6], lastMove)) {
         // Então o movimento é válido
         castlingMoves.push({ row: kingRow, col: 6 })
       }
@@ -66,7 +66,7 @@ export function getCastlingMoves (board: BoardState, color: Color): Position[] {
   if (rookQueenSide && rookQueenSide.type === 'rook' && !rookQueenSide.hasMoved) {
     // Se as casas entre a torre e o rei não estão ocupadas nem atacadas (no primeiro caso, incluindo a casa do rei)
     if (areSquaresEmpty(board, kingRow, 1, 3)) {
-      if (isSquareSafe(board, color, kingRow, [4, 3, 2])) {
+      if (isSquareSafe(board, color, kingRow, [4, 3, 2], lastMove)) {
         // Então o movimento é válido
         castlingMoves.push({ row: kingRow, col: 2 })
       }

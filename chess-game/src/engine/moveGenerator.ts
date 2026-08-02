@@ -76,7 +76,7 @@ export function getKnightMoves (board: BoardState, pos: Position): Position[] {
   return moves
 }
 
-export function getKingMoves (board: BoardState, pos: Position): Position[] {
+export function getKingMoves (board: BoardState, pos: Position, lastMove: Move | null): Position[] {
   // Estabelece o padrão de movimentos legais do rei
   const offsets = [[-1,-1], [-1,0],  [-1,1],
                    [0,-1 ],          [0,1 ],
@@ -102,7 +102,7 @@ export function getKingMoves (board: BoardState, pos: Position): Position[] {
 
   // Roque
   if (piece) {
-    const castlingMoves = getCastlingMoves(board, piece.color)
+    const castlingMoves = getCastlingMoves(board, piece.color, lastMove)
     return [...moves, ...castlingMoves]
   }
 
